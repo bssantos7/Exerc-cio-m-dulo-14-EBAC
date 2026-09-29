@@ -49,8 +49,7 @@ public class Hotel {
         System.out.println("2 - Luxo - R$ 100,00");
         System.out.println("3 - Presidencial - R$ 250,00");
         opcao=Integer.parseInt(scanner.nextLine());
-        
-        
+
         repetir=true;
         
         do{
@@ -117,9 +116,97 @@ public class Hotel {
         if(i<this.getQuartos().length){
             Reserva[] novalista = this.getQuartos();
             novalista[i]=this.criarReserva(scanner);
+            i+=1;
+            this.setOcupacao(i);
             mensagem="Reserva cadastrada com sucesso!";
         }else{
             mensagem="Hotel está lotado. não é possivel fazer a reserva";
+        }
+        return mensagem;
+    }
+
+    public String listarReservas(){
+        String mensagem = "";
+        Reserva [] lista=this.getQuartos();
+        if(lista==null||this.getOcupacao()==0){
+            mensagem="Não há reservas cadastradas para este hotel";
+        }else{
+            for(Reserva reserva:lista){
+                if(reserva==null){
+                    continue;
+                }else{
+                    double valorTotal =reserva.getValorDiaria()*reserva.getNumeroDias();
+                    System.out.println(reserva+" - Valor total="+valorTotal);
+                }
+            }
+            mensagem="FIm das reservas cadastradas";
+        }
+        return mensagem;
+    }
+
+    public void listarResultadoConsulta(Reserva[] resultado){
+        for(Reserva reserva:resultado){
+            System.out.println(reserva);
+            System.out.println("---------");
+        }
+    }
+
+    public String ordenarReservas(){
+        //decrescente
+        String mensagem="";
+        Reserva[] lista = this.getQuartos();
+        if(lista==null||this.getOcupacao()==0){
+            mensagem="não há reservas cadastradas neste hotel";
+        }else{
+            for(int i=0;i<lista.length;i++){
+                for(int j=i+1;j<lista.length;j++){
+                    if(lista[j]==null){
+                        continue;
+                    }else if(lista[j].getNumeroDias()>lista[i].getNumeroDias()){
+                        Reserva auxiliar = lista[j];
+                        lista[j]=lista[i];
+                        lista[i]=auxiliar;
+                    }
+                }
+            }
+            this.setQuartos(lista);
+            this.listarReservas();
+            mensagem="Lista de reservas ordenada com sucesso";
+        }
+        return mensagem;
+    }
+
+    public String buscarReservaPorNome(Scanner scanner){
+        String mensagem="";
+        String nome="";
+        Reserva[] lista = this.getQuartos();
+        Reserva[] resultado =new Reserva[this.getOcupacao()+1];
+        int contador=0;
+        boolean encontrou=false;
+        
+        if(lista==null||this.getOcupacao()==0){
+            mensagem="Não há reservas cadastradas neste hotel";
+        }else{
+            System.out.println("Digite um nome para realizar a busca");
+            nome=scanner.nextLine();
+            nome=nome.toLowerCase();
+
+            for(Reserva reserva:lista){
+                String nomeReserva=reserva.getNomeHospede().toLowerCase();
+                encontrou=nomeReserva.contains(nome);
+                if(encontrou){
+                    resultado[contador]=reserva;
+                    contador++;
+                }
+            }
+
+            if(contador==0){
+                mensagem="a busca contendo o nome  "+nome+"não retornou resultados";
+            }else{
+                System.out.println("foram encontrados "+contador+" reservas contendo o nome"+nome);
+                this.listarResultadoConsulta(resultado);
+                mensagem="fim da busca";
+            }
         }
         return mensagem;
     }
