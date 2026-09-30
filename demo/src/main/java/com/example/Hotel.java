@@ -1,4 +1,5 @@
 package com.example;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Hotel {
@@ -115,10 +116,15 @@ public class Hotel {
         int i=this.getOcupacao();
         if(i<this.getQuartos().length){
             Reserva[] novalista = this.getQuartos();
-            novalista[i]=this.criarReserva(scanner);
-            i+=1;
-            this.setOcupacao(i);
-            mensagem="Reserva cadastrada com sucesso!";
+            Reserva novaReserva=this.criarReserva(scanner);
+            if(novaReserva==null){
+                mensagem="operacao cancelada pelo usuario";
+            }else{
+                novalista[i]=novaReserva;
+                i+=1;
+                this.setOcupacao(i);
+                mensagem="Reserva cadastrada com sucesso!";
+            }
         }else{
             mensagem="Hotel está lotado. não é possivel fazer a reserva";
         }
@@ -159,14 +165,18 @@ public class Hotel {
             mensagem="não há reservas cadastradas neste hotel";
         }else{
             for(int i=0;i<lista.length;i++){
-                for(int j=i+1;j<lista.length;j++){
-                    if(lista[j]==null){
-                        continue;
-                    }else if(lista[j].getNumeroDias()>lista[i].getNumeroDias()){
-                        Reserva auxiliar = lista[j];
-                        lista[j]=lista[i];
-                        lista[i]=auxiliar;
-                    }
+                if(lista[i]==null){
+                    continue;
+                }else{
+                    for(int j=i+1;j<lista.length;j++){
+                        if(lista[j]==null){
+                            continue;
+                        }else if(lista[j].getNumeroDias()>lista[i].getNumeroDias()){
+                            Reserva auxiliar = lista[j];
+                            lista[j]=lista[i];
+                            lista[i]=auxiliar;
+                        }
+                    }   
                 }
             }
             this.setQuartos(lista);
@@ -180,7 +190,7 @@ public class Hotel {
         String mensagem="";
         String nome="";
         Reserva[] lista = this.getQuartos();
-        Reserva[] resultado =new Reserva[this.getOcupacao()+1];
+        Reserva[] resultado = new Reserva[lista == null ? 0 : lista.length];
         int contador=0;
         boolean encontrou=false;
         
@@ -192,6 +202,9 @@ public class Hotel {
             nome=nome.toLowerCase();
 
             for(Reserva reserva:lista){
+                if(reserva == null){
+                    continue;
+                }
                 String nomeReserva=reserva.getNomeHospede().toLowerCase();
                 encontrou=nomeReserva.contains(nome);
                 if(encontrou){
@@ -204,7 +217,7 @@ public class Hotel {
                 mensagem="a busca contendo o nome  "+nome+"não retornou resultados";
             }else{
                 System.out.println("foram encontrados "+contador+" reservas contendo o nome"+nome);
-                this.listarResultadoConsulta(resultado);
+                this.listarResultadoConsulta(Arrays.copyOf(resultado, contador));
                 mensagem="fim da busca";
             }
         }
